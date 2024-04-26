@@ -1,0 +1,10 @@
+1. add raffle to complimentary A
+2. ticket info: vouchers the whole width of screen if voucher available for user
+3. change website background to image
+
+
+Deployment:
+
+DJANGO_SETTINGS_MODULE = config/settings/production_settings.py
+
+why should i load_dotenv() in this file if i set the DJANGO_SETTINGS_MODULE with plain text
