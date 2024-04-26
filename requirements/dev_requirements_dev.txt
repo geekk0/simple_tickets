@@ -1,0 +1,4 @@
+-r base_requirements.txt # includes the base_requirements.txt file
+
+coverage==5.1
+django-debug-toolbar==2.2
