@@ -6,6 +6,8 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 
+from simple_tickets.events.models import Event
+
 from .qrcodes import TicketQRCode
 from .tg_bot import TelegramBot
 
@@ -36,7 +38,6 @@ class Package(models.Model):
 
 
 class Ticket(models.Model):
-
     code = models.CharField(max_length=100, verbose_name='Ticket unique number', unique=True, null=True, blank=True)
     vouchers = models.ForeignKey(Partner, on_delete=models.CASCADE, blank=True, null=True, verbose_name='Vouchers')
     holder = models.CharField(max_length=250, verbose_name='Ticket holder name', blank=True, null=True)
@@ -53,6 +54,7 @@ class Ticket(models.Model):
                                       choices=[('Cash', 'Cash'), ('GCash', 'GCash')],
                                       default='Cash')
     post_discount = models.BooleanField(default=False)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True, verbose_name='Event')
 
     def __str__(self):
         return str(self.number)
@@ -109,6 +111,13 @@ class Ticket(models.Model):
         os.remove("qr_temp.png")
 
 
+class TicketTemplate(models.Model):
+    event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='ticket_template',
+                                 null=True, blank=True)
+    image = models.ImageField(upload_to='ticket_templates',
+                              null=True, blank=True, verbose_name="Ticket template")
+
+
 class Voucher(models.Model):
 
     STATUS_CHOICES = [
@@ -126,3 +135,5 @@ class Voucher(models.Model):
     class Meta:
         verbose_name = 'Voucher'
         verbose_name_plural = 'Vouchers'
+
+

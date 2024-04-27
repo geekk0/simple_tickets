@@ -53,10 +53,8 @@ def paste_qr_code(background_image_path, qr_data, output_image_path, qr_position
 
 
 def get_qrcode_position(background_image_size):
-    background_horizontal = background_image_size[0]
-    background_vertical = background_image_size[1]
-    qrcode_x_position = round(background_horizontal / 100 * 5)
-    qrcode_y_position = round(background_vertical / 100 * 90)
+    qrcode_x_position = round(background_image_size[0] / 100 * 5)
+    qrcode_y_position = round(background_image_size[1] / 100 * 90)
     return [qrcode_x_position, qrcode_y_position]
 
 

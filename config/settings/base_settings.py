@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'simple_tickets.tickets',
     'crispy_forms',
-    'silk'
+    'silk',
+    'simple_tickets.events',
 ]
 
 MIDDLEWARE = [

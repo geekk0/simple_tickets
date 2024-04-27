@@ -6,10 +6,10 @@ from . import views
 
 
 urlpatterns = [
-    path('', views.main),
+    # path('', views.main),
     path('main', views.main, name='main'),
-    path('login/', views.LoginView.as_view(), name='login'),
-    path('logout/', views.user_logout, name='logout'),
+    # path('login/', views.LoginView.as_view(), name='login'),
+    # path('logout/', views.user_logout, name='logout'),
 
     path('ticket_info/<str:ticket_code>', views.ticket_info, name='ticket_info'),
     path('add_ticket', views.add_ticket, name='add_ticket'),
