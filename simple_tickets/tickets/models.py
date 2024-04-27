@@ -1,10 +1,12 @@
+import os
 import secrets
 import string
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.files.base import ContentFile
 
-from .qrcodes import QRCode
+from .qrcodes import TicketQRCode
 from .tg_bot import TelegramBot
 
 
@@ -99,9 +101,12 @@ class Ticket(models.Model):
             telegram_bot.send_all_tickets(info_txt)
 
     def create_qr_code(self):
-        qr_code = QRCode(self.qr_link)
+        qr_code = TicketQRCode(self.qr_link)
         qr_code.create_qr_code_image()
-        qr_code.image.save(self.qr_image)
+        with open('qr_temp.png', 'rb') as f:
+            data = f.read()
+        self.qr_image.save(name="qr_temp.png", content=ContentFile(data))
+        os.remove("qr_temp.png")
 
 
 class Voucher(models.Model):

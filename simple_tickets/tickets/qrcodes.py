@@ -1,60 +1,75 @@
 from PIL import Image
+
 import qrcode
 
-class QRCode:
+
+class TicketQRCode:
     def __init__(self, qr_data):
         self.data = qr_data
         self.image = None
+        self.qr_service = qrcode.QRCode(version=1,
+                                     error_correction=qrcode.constants.ERROR_CORRECT_L,
+                                     box_size=10,
+                                     border=4,
+        )
+        self.qr_service.add_data(self.data)
 
     def create_qr_code_image(self):
-        qr = qrcode.QRCode(
-            version=1,
-            error_correction=qrcode.constants.ERROR_CORRECT_L,
-            box_size=10,
-            border=4,
-        )
-        qr.add_data(self.data)
-        qr.make(fit=True)
-
-        # Generate PIL image from the QR code
-        self.image = qr.make_image(fill_color="black", back_color="white")
+        self.qr_service.make(fit=True)
+        self.qr_service.make_image(fill_color="black", back_color="white").save("qr_temp.png")
 
 
 def paste_qr_code(background_image_path, qr_data, output_image_path, qr_position):
-    # Open the background image
-    background = Image.open(background_image_path)
+        # Open the background image
+        background = Image.open(background_image_path)
 
-    # Create QR code instance
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
-    qr.add_data(qr_data)
-    qr.make(fit=True)
+        qr_position = get_qrcode_position(background.size)
 
-    # Create QR code image
-    qr_image = qr.make_image(fill_color="black", back_color="white")
+        qr_hor = qr_position[0]
+        qr_ver = qr_position[1]
+        print(qr_hor, qr_ver)
 
-    # Calculate the position to paste the QR code
-    qr_position_x, qr_position_y = qr_position
+        # Create QR code instance
+        qr = qrcode.QRCode(
+            version=1,
+            error_correction=qrcode.constants.ERROR_CORRECT_L,
+            box_size=3,
+            border=2,
+        )
+        qr.add_data(qr_data)
+        qr.make(fit=True)
 
-    # Paste the QR code onto the background image
-    background.paste(qr_image, (qr_position_x, qr_position_y))
+        # Create QR code image
+        qr_image = qr.make_image(fill_color="black", back_color="white")
 
-    # Save the resulting image
-    background.save(output_image_path)
+        # Calculate the position to paste the QR code
+        qr_position_x, qr_position_y = qr_position
+
+        # Paste the QR code onto the background image
+        background.paste(qr_image, (qr_position_x, qr_position_y))
+
+        # Save the resulting image
+        background.save(output_image_path)
+
+
+def get_qrcode_position(background_image_size):
+    background_horizontal = background_image_size[0]
+    background_vertical = background_image_size[1]
+    qrcode_x_position = round(background_horizontal / 100 * 5)
+    qrcode_y_position = round(background_vertical / 100 * 90)
+    return [qrcode_x_position, qrcode_y_position]
+
 
 # Example usage
-# background_image_path = "background_image.png"
-# qr_data = "https://example.com"
-# output_image_path = "output_image.png"
-# qr_position = (100, 100)  # Example position, adjust as needed
-#
-# paste_qr_code(background_image_path, qr_data, output_image_path, qr_position)
+if __name__ == "__main__":
+    background_image_path = "background_image.jpg"
+    qr_data = "https://example.com"
+    output_image_path = "output_image.png"
+    qr_position = (30, 220)
 
-# Create an instance of QRCode
+    paste_qr_code(background_image_path, qr_data, output_image_path, qr_position)
+
+# # Create an instance of QRCode
 # qr_code = QRCode("https://example.com")
 #
 # # Generate the QR code image
@@ -65,4 +80,8 @@ def paste_qr_code(background_image_path, qr_data, output_image_path, qr_position
 #     qr_code.image.show()
 # else:
 #     print("QR code image has not been generated yet.")
+
+
+
+
 

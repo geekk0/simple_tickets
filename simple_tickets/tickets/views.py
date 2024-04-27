@@ -99,20 +99,19 @@ def add_ticket(request):
 
                 ticket = Ticket.objects.create(holder=ticket_holder, package=selected_package)
                 ticket.save()
+                ticket.create_qr_code()
 
                 package = ticket.package
 
-                for partner in package.partners.all():
-                    voucher = Voucher.objects.create(ticket=ticket, partner=partner)
-                    if partner.facilitator:
-                        voucher.activities = True
-                    voucher.save()
+                if package:
+                    for partner in package.partners.all():
+                        voucher = Voucher.objects.create(ticket=ticket, partner=partner)
+                        if partner.facilitator:
+                            voucher.activities = True
+                        voucher.save()
 
             return redirect('main')
-            # if ticket:
-            #     return redirect('ticket_info', ticket_code=ticket.code)
-            # else:
-            #     return redirect('main')
+
         else:
             error_message = ticket_form.errors
             packages = Package.objects.all()
@@ -127,8 +126,10 @@ def add_ticket(request):
                       {'ticket_form': ticket_form,
                        'packages': packages})
 
+
 def show_success_page(request):
     return render(request, 'success_page.html')
+
 
 def user_logout(request):
     request.user.set_unusable_password()
@@ -152,16 +153,21 @@ def main(request):
 def ticket_info(request, ticket_code):
     try:
         ticket = Ticket.objects.get(code=ticket_code)
-        partners = ticket.package.partners.all()
-        for partner in partners:
-            if not Voucher.objects.filter(ticket=ticket, partner=partner).exists():
-                voucher = Voucher.objects.create(ticket=ticket, partner=partner)
-                voucher.save()
-        vouchers = Voucher.objects.filter(ticket=ticket, partner__facilitator=False)
-        activities = Voucher.objects.filter(ticket=ticket, partner__facilitator=True)
-        packages = Package.objects.all()
-        context = {'ticket_info': ticket, 'vouchers': vouchers,
-                   'activities': activities, 'packages': packages}
+
+        if ticket.package:
+            partners = ticket.package.partners.all()
+            for partner in partners:
+                if not Voucher.objects.filter(ticket=ticket, partner=partner).exists():
+                    voucher = Voucher.objects.create(ticket=ticket, partner=partner)
+                    voucher.save()
+            vouchers = Voucher.objects.filter(ticket=ticket, partner__facilitator=False)
+            activities = Voucher.objects.filter(ticket=ticket, partner__facilitator=True)
+            packages = Package.objects.all()
+            context = {'ticket_info': ticket, 'vouchers': vouchers,
+                       'activities': activities, 'packages': packages}
+        else:
+            context = {'ticket_info': ticket}
+
     except Ticket.DoesNotExist:
         context = {'error': 'Ticket not found'}
 
@@ -202,8 +208,3 @@ def send_all_tickets_info(request):
 def send_tickets_info_attached_to_partner(request):
     Ticket.send_tickets_info_attached_to_partner()
     return redirect('main')
-
-def create_ticket_qr_code(request, ticket_code):
-    ticket = Ticket.objects.get(code=ticket_code)
-    ticket.create_qr_code()
-    ticket.save()
