@@ -54,17 +54,17 @@ def show_success_page(request):
     return render(request, 'success_page.html')
 
 
-def main(request):
-    context = {}
-
-    # user_agent = request.META['HTTP_USER_AGENT']
-
-    # if 'Mobile' in user_agent:
-    #     return render(request, 'mobile_main.html', context)
-    # else:
-    #     return render(request,  'main.html', context)
-
-    return render(request, 'main.html', context)
+# def main(request):
+#     context = {}
+#
+#     # user_agent = request.META['HTTP_USER_AGENT']
+#
+#     # if 'Mobile' in user_agent:
+#     #     return render(request, 'mobile_main.html', context)
+#     # else:
+#     #     return render(request,  'main.html', context)
+#
+#     return render(request, 'main.html', context)
 
 
 def ticket_info(request, ticket_code):

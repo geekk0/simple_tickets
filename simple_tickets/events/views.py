@@ -1,11 +1,12 @@
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseRedirect
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views import View
 from django.urls import reverse_lazy
 
-from .forms import LoginForm, ResetPassword
+from .forms import LoginForm, ResetPassword, AddEventForm
+from .models import Event, EventImages, Organizer
 
 
 class LoginView(View):
@@ -28,18 +29,18 @@ class LoginView(View):
 
                 # Redirect to the next URL if provided, otherwise, redirect to a default URL
                 next_url = request.GET.get('next')
+                print(next_url)
+
                 if next_url:
                     return HttpResponseRedirect(next_url)
                 else:
                     # If 'next' parameter is not provided, redirect to a default URL
-                    return HttpResponseRedirect(reverse_lazy("main"))
+                    return HttpResponseRedirect(reverse_lazy("events"))
 
         return render(request, 'login.html', {'form': form})
 
 @login_required(login_url='/login/')
 def default_redirect_view(request):
-    # This view can be used as the default redirection view
-    # when the 'next' parameter is not provided
     return HttpResponseRedirect(reverse_lazy('default_redirect_url'))
 
 
@@ -70,8 +71,11 @@ def user_logout(request):
     return HttpResponseRedirect('/')
 
 
-def main(request):
-    context = {}
+def events_list(request):
+
+    events = Event.objects.filter(is_active=True)
+
+    context = {'events': events}
 
     # user_agent = request.META['HTTP_USER_AGENT']
 
@@ -81,3 +85,42 @@ def main(request):
     #     return render(request,  'main.html', context)
 
     return render(request, 'main.html', context)
+
+
+# def event_list(request):
+
+
+def add_event(request):
+    if request.method == 'POST':
+
+        event_form = AddEventForm(request.POST)
+        if event_form.is_valid():
+
+            if not request.user.groups.first() or not request.user.groups.first().organizer:
+                error_message = "User is not an organizer!"
+                return render(request, 'add_event.html',
+                              {'event_form': event_form, 'error_message': error_message})
+
+            event_organizer = request.user.groups.first().organizer
+            print(event_form.cleaned_data)
+            print(request.FILES['cover'])
+
+            event = Event.objects.create(organizer=event_organizer, **event_form.cleaned_data)
+
+            if request.FILES:
+                event.cover = request.FILES['cover']
+
+            event.save()
+
+            return redirect('events')
+
+        else:
+            error_message = event_form.errors
+            return render(request, 'add_event.html',
+                          {'ticket_form': event_form, 'error_message': error_message})
+
+    else:
+        event_form = AddEventForm()
+
+        return render(request, 'add_event.html',
+                      {'event_form': event_form})

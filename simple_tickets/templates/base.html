@@ -2,6 +2,7 @@
 <html lang="en">
 {% load static %}
 {% load i18n %}
+{% load custom_tags %}
 
 
 <head>
@@ -14,9 +15,10 @@
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/mobile.css' %}">
     <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
     {% block title %}
-        <title>She Sails!</title>
+        <title>SimpleTickets</title>
     {% endblock %}
 
     <style>
@@ -27,9 +29,10 @@
 
         {% block background_image %}
             body {
-                background-image: url('{% static "images/background.png" %}');
-                background-size: auto auto;
-                background-repeat: no-repeat;
+                {#background-image: url('{% static "images/background.png" %}');#}
+                {#background-size: auto auto;#}
+                {#background-repeat: no-repeat;#}
+                background: #ecf4f0;
             }
         {% endblock %}
     
@@ -40,43 +43,32 @@
 
 <body> {#style="width:95%; margin: auto"#}
 
-        <header class="" style="width:100%">
 
-            {% if request.user.is_authenticated %}
-                
-                
-                <div class="col-10 offset-1" style="margin-top: 0.8%">
-                    <nav class="navbar navbar-expand custom-bg-color">
-                            <div class="collapse navbar-collapse justify-content-center">
-                                <ul class="navbar-nav mr-auto">
-                                    <li class="header_label navbar-brand-collapse"><a class="nav-link link-dark">{% trans "User:" %} {{ request.user.username }}</a></li>
-                                    {% if user.is_superuser %}
-                                        <li class="header_label navbar-brand-collapse"><a href="{% url "add_ticket" %}" class="nav-link link-dark">Add ticket</a></li>
-                                    {% endif %}
-                                    <li class=""><a class="btn btn-outline-dark" id="logout_link" href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
-
-
-                                </ul>
-                            </div>
-                        </nav>
-                </div>
-                
-                <div class="col-8 offset-2">
-                    <div class="">
-                        <div class="col-8 offset-2">
-{#                            <img style="width:5%; margin:auto;" src='{% static "images/logo.png" %}' alt="Description of the image">#}
-                            <h1 style="text-align: center;color: #bc06a5;" class="">She Sails!</h1>
-                        </div>
-
+            <header class="nav_bar">
+                <div class="row">
+                    <div class="col-4 logo_block">
+                        <a style="color: #0b414d; margin-left:10%" href="">Simple tickets</a>
+                    </div>
+                    <div class="nav_menu col-5 offset-2 row">
+                        <ul>
+                            {% if not user.is_authenticated %}
+                                <li><a href="{% url 'login' %}" class="btn btn-outline-dark">Sign in</a></li>
+                            {% else %}
+                                {% if request.user|has_organizer_group %}
+                                    <li id="add_event_btn"><a class="btn btn-success"  
+                                           href="{% url 'add_event' %}">Add Event</a></li>
+                                {% endif %}    
+                                <li><p id="account_name">
+                                    {{ request.user.username }}</p></li>
+                                <li><a class="btn btn-outline-dark" 
+                                            id="logout_link" href="{% url 'logout' %}">{% trans 'Logout' %}</a></li>
+                            {% endif %}
+                        </ul>
                     </div>
                 </div>
-            {% else %}
-                 <h3 class="nav-link display-5" style="text-align: center;color: #bc06a5;">She Sails!</h3>
-{#                <img src='{% static "images/logo.png" %}' alt="Description of the image">#}
-            {% endif %}
-        </header>
-        
-    <div style="margin-bottom: 8%">    
+            </header>
+            
+    <div style="margin-bottom: 10%; margin-top:5%">
         {% block content %}
         {% endblock %}
     </div>

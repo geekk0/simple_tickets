@@ -2,6 +2,8 @@ from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 
+from .models import Event, EventImages, Organizer
+
 class LoginForm(forms.ModelForm):
 
     password = forms.CharField(widget=forms.PasswordInput)
@@ -69,4 +71,9 @@ class ResetPassword(forms.ModelForm):
         fields = ['username', 'old_password', 'new_password', 'confirm_new_password']
 
 
+class AddEventForm(forms.ModelForm):
 
+    class Meta:
+        model = Event
+        fields = '__all__'
+        exclude = ['organizer', 'is_active']

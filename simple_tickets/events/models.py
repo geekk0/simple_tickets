@@ -1,4 +1,4 @@
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import Group
 from django.db import models
 
 
@@ -26,6 +26,7 @@ class Event(models.Model):
     cover = models.ImageField(upload_to='event_images', null=True, blank=True, verbose_name="Cover image")
     organizer = models.ForeignKey(Organizer, on_delete=models.CASCADE,
                                   null=True, blank=True, verbose_name="Organizer")
+    is_active = models.BooleanField(verbose_name="Is active", default=True)
 
     def __str__(self):
         return self.name
@@ -39,5 +40,8 @@ class EventImages(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='event_images', null=True, blank=True)
     image = models.ImageField(upload_to='event_images', null=True, blank=True)
 
+    class Meta:
+        verbose_name = 'Event Images'
+        verbose_name_plural = 'Event Images'
 
 

@@ -1,0 +1,56 @@
+{%  extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% load crispy_forms_filters %}
+
+{% block style %}
+    .errorlist {
+        color: red; 
+        font-weight: bold; 
+        list-style: none; 
+        padding: 0; 
+        margin: 3%;
+        text-align: center;
+    }
+    
+{% endblock %}
+
+{% block content %}
+    <div class="col-md-4 offset-4" style="margin:auto;text-align: right">
+        <h4 style="text-align: center">Add Event</h4>
+        
+        {% if error_message %}
+            <p class="errorlist">{{ error_message }}</p>
+        {% endif %}
+        
+        <form style="width: 50%; margin: auto; text-align: center" id="event_form" enctype="multipart/form-data"
+            method="post" name="event_form" action="{% url 'add_event' %}">
+            
+            {% csrf_token %}
+            
+            <label style="margin-top:5%" for="name">Event name:</label>
+            <input type="text" name="name" id="name">
+            
+            <label style="margin-top:5%" for="date">Date:</label>
+            <input type="datetime-local" name="date" id="date">
+        
+            <label style="margin-top:5%" for="location">Location:</label>
+            <input type="text" name="location" id="location">
+        
+            <label style="margin-top:5%" for="description">Description:</label>
+            <input type="text" name="description" id="description">
+        
+            <label style="margin-top:5%" for="cover">Cover:</label>
+            <input type="file" name="cover" id="cover">
+            
+            <button type="submit" id="submit-button" class="btn btn-outline-dark" 
+                                style="margin: 2%;margin-top: 20px">Add</button>
+        </form>
+    
+    </div>
+
+{% endblock %}
+
+
+
+
+
