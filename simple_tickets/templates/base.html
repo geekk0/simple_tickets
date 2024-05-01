@@ -14,6 +14,7 @@
           integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
     <link rel="stylesheet" href="{% static 'css/base.css' %}">
     <link rel="stylesheet" href="{% static 'css/mobile.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dialog-modal.css' %}">
     <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 
@@ -47,7 +48,7 @@
             <header class="nav_bar">
                 <div class="row">
                     <div class="col-4 logo_block">
-                        <a style="color: #0b414d; margin-left:10%" href="">Simple tickets</a>
+                        <a style="color: #0b414d; margin-left:10%" href="{% url 'events' %}">Simple tickets</a>
                     </div>
                     <div class="nav_menu col-5 offset-2 row">
                         <ul>

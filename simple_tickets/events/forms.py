@@ -76,4 +76,4 @@ class AddEventForm(forms.ModelForm):
     class Meta:
         model = Event
         fields = '__all__'
-        exclude = ['organizer', 'is_active']
+        exclude = ['organizer', 'is_active', 'published']

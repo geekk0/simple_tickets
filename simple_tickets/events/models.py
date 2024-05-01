@@ -27,9 +27,23 @@ class Event(models.Model):
     organizer = models.ForeignKey(Organizer, on_delete=models.CASCADE,
                                   null=True, blank=True, verbose_name="Organizer")
     is_active = models.BooleanField(verbose_name="Is active", default=True)
+    published = models.BooleanField(verbose_name="Is published", default=False)
 
     def __str__(self):
         return self.name
+
+    def user_is_event_organizer(self, user):
+        if self.organizer.group in user.groups.all():
+            return True
+        else:
+            return False
+
+    def get_cover_orientation(self):
+        if self.cover:
+            if self.cover.height > self.cover.width:
+                return 'portrait'
+            else:
+                return 'landscape'
 
     class Meta:
         verbose_name = 'Event'
@@ -39,6 +53,10 @@ class Event(models.Model):
 class EventImages(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='event_images', null=True, blank=True)
     image = models.ImageField(upload_to='event_images', null=True, blank=True)
+    caption = models.CharField(verbose_name="Image caption", max_length=100, null=True, blank=True)
+
+    def __str__(self):
+        return self.event.name + str(self.image)
 
     class Meta:
         verbose_name = 'Event Images'

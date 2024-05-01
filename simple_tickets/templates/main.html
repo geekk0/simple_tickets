@@ -36,14 +36,32 @@
                 <div class="col-3">    
                     <div class="event_tile">
                         {% if event.cover %}
-                            <img class="tile_image" src="{{ event.cover.url }}">
+                            <div class="event_tile_cover">
+                                {% if event.get_cover_orientation == 'landscape' %}
+                                    <img class="tile_image" style="height: auto; margin-top: 40%" 
+                                         src="{{ event.cover.url }}">
+                                {% else %}
+                                    <img class="tile_image" src="{{ event.cover.url }}">
+                                {% endif %}
+                            </div>
+                            
                         {% endif %}
                         <p class="event_date">{{ event.date }}</p>
-                        <h5>{{ event.name }}</h5>
-                        <p class="tile_desc">{{ event.description }}</p>
-
-                            <a class="btn btn-outline-dark" style="margin-bottom:5%"
-                               href="{% url 'events' %}">More info</a>
+                        <p class="event_location">{{ event.location }}</p>
+                        <h5>{{ event.name|truncatechars:22 }}</h5>
+                        {% if event.description %}
+                            {% if event.description|length < 33 %}
+                                <p class="tile_desc">{{ event.description }}</p>
+                                <br>
+                            {% else %}    
+                                <p class="tile_desc">{{ event.description|truncatechars:60 }}</p>
+                            {% endif %}    
+                        {% else %}
+                            <p>...</p>
+                            <br>
+                        {% endif %}
+                        <a class="btn btn-outline-dark" style="margin-bottom:5%"
+                           href="{% url 'event' event.id %}">Open</a>
                     </div>
                 </div>
             {% endfor %}
