@@ -25,7 +25,7 @@
         {% endif %}
         
         <form style="width: 50%; margin: auto; text-align: center" id="ticket_form"
-            method="post" name="ticket_form" action="{% url 'add_ticket' %}">
+            method="post" name="ticket_form" action="{% url 'add_tickets' event.id %}">
             
             {% csrf_token %}
             

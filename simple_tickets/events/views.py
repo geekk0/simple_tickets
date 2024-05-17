@@ -31,7 +31,6 @@ class LoginView(View):
 
                 # Redirect to the next URL if provided, otherwise, redirect to a default URL
                 next_url = request.GET.get('next')
-                print(next_url)
 
                 if next_url:
                     return HttpResponseRedirect(next_url)

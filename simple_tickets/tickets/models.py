@@ -18,6 +18,7 @@ class Partner(models.Model):
     url = models.URLField(verbose_name="Partner's URL", null=True, blank=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, verbose_name="User")
     facilitator = models.BooleanField(verbose_name="Is facilitator", default=False)
+    event = models.ManyToManyField(Event, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -31,7 +32,7 @@ class Package(models.Model):
     name = models.CharField(max_length=100)
     price = models.CharField(max_length=100)
     partners = models.ManyToManyField(Partner)
-    tickets = models.ForeignKey('Ticket', on_delete=models.CASCADE, related_name='packages', null=True, blank=True)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, null=True, blank=True)
 
     def __str__(self):
         return self.name
@@ -41,7 +42,7 @@ class Ticket(models.Model):
     code = models.CharField(max_length=100, verbose_name='Ticket unique number', unique=True, null=True, blank=True)
     vouchers = models.ForeignKey(Partner, on_delete=models.CASCADE, blank=True, null=True, verbose_name='Vouchers')
     holder = models.CharField(max_length=250, verbose_name='Ticket holder name', blank=True, null=True)
-    package = models.ForeignKey(Package, on_delete=models.CASCADE, blank=True, null=True, verbose_name='Package')
+    package = models.ForeignKey(Package, on_delete=models.CASCADE, blank=True, null=True)
     number = models.IntegerField(verbose_name='Ticket number', unique=True, blank=True, null=True)
     qr_link = models.TextField(verbose_name='Link for QR code', blank=True, null=True)
     qr_image = models.ImageField(upload_to='qr_images', null=True, blank=True)

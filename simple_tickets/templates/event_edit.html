@@ -8,7 +8,14 @@
         {% csrf_token %}
 
         <div class="event_view_template col-10 offset-1">
-            <h3>Edit event: {{ event.name }}</h3>
+            <div class="row">
+                <div class="col-2 offset-1">
+                    <a href="{% url "manage_tickets" event.id %}"
+                    class="" style="color: green; text-decoration: none">
+                        <img src="{% static 'images/tickets.png' %}" style="width:40%; margin: auto"></a>
+                </div>
+                <h3 class="col-6">Edit event: {{ event.name }}</h3>
+            </div>
             <input name="name" id="name" value="{{ event.name }}" hidden>
             <input id="date" class="col-2 offset-5" type="datetime-local" name="date" 
                    style="margin-bottom: 3%; margin-top: 1%; border: none;"
@@ -23,7 +30,7 @@
                         <div class="row">
                             {% for image in event.event_images.all %}
                                 <div class="image_layout col-3">
-                                    <img class="images" src="{{ image.image.url }}" 
+                                    <img class="images" src="{{ image.image.url }}"
                                                  alt="{{ image.caption }}">
                                     <div class="remove_image" style="width:15%">
                                         <a href="{% url "remove_event_image" image.id %}">
@@ -47,17 +54,17 @@
                     <div class="row" style="">
                         {% for image in event.event_images.all %}
                             <div class="image_layout col-1">
-                                <img class="images" src="{{ image.image.url }}" 
+                                <img class="images" src="{{ image.image.url }}"
                                      alt="{{ image.caption }}">
                                      <div class="remove_image" style="width:20%">
                                          <a href="{% url "remove_event_image" image.id %}">
                                              <img src="{% static 'images/remove.png' %}" style="width:100%"></a>
                                      </div>
-                            </div>    
+                            </div>
                         {% endfor %}
-                        
+
                         <div class="col-1" style="text-align: center">
-                            <a style="font-size: 56pt; color: #26760e; 
+                            <a style="font-size: 56pt; color: #26760e;
                             text-decoration: none" href="#"
                             id="call_add_image" onclick="show_add_image_dialog()">+</a>
                         </div>
@@ -118,7 +125,7 @@
         let all_images = document.getElementsByClassName("images")
         let nav_bar = document.querySelector(".nav_bar");
 
-        
+
 
         for (let i = 0; i < all_images.length; i++) {
             all_images.item(i).onclick = function() {
@@ -152,6 +159,6 @@
             dialog.style.display = "none"
 
         }
-    
+
     </script>
 {% endblock %}

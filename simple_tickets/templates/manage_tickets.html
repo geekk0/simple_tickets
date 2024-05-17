@@ -1,0 +1,455 @@
+{%  extends 'base.html' %}
+{% load static %}
+{% load custom_tags %}
+
+
+{% block content %}
+    <div class="col-8 offset-2 tickets_block">
+        <h4 style="margin:2%" onclick="expose_tickets_block(this)">- Tickets</h4>
+        <div class="row" id="tickets_field" style="margin:3%">
+            
+            <div class="row">
+                <div class="col-4">
+                    <p>Created ticket numbers: </p>
+                    <p>Total number created: {{ tickets.count }}</p>
+                    <p>Total sold: {{ tickets|filter_sold_tickets|length }}</p>
+                    <button type="button" onclick="show_add_tickets_modal()" 
+                            class="btn btn-success">Add tickets</button>
+                </div>
+            
+                <div class="col-2">
+                    {% with tickets.first as first_item %}
+                            <p>first: №{{ first_item }}</p>
+                    {% endwith %}
+                </div>
+                  
+                <div class="col-2">
+                    {% with tickets.last as last_item %}
+                        <p>last: №{{ last_item }}</p>
+                    {% endwith %}
+                </div>
+                    
+                <div class="col-4" style="text-align: center">
+                    <p onclick="show_add_tickets_modal()">Tickets template:</p>
+                    {% if event.ticket_template.image %}
+                        <img src="{{ event.ticket_template.image.url }}" style="width: 60%; margin:auto;">
+                    {% endif %}
+                    <form name="tickets_template" 
+                          action="{% url "update_tickets_template" event.id %}" 
+                          enctype="multipart/form-data"
+                          method="post">
+                        {% csrf_token %}
+                        <input oninput="update_tickets_template(this)" 
+                               name="tickets_template_image"
+                               type="file" 
+                               style="margin-top: 4%; margin-left: auto; 
+                               margin-right:auto; width: 90%">
+                    </form>
+                </div>
+                
+                <div class="dialog" id="modal_add_tickets" style="display: none">
+                    <div class="dialog-modal-content">
+                        <form style="margin: auto; text-align: center" id="ticket_form"
+                            method="post" name="ticket_form" action="{% url 'add_tickets' event.id %}">
+                            
+                            {% csrf_token %}
+                            
+                            <div class="row col-12">
+                                <label style="margin-top:5%" for="quantity"
+                                    class="col-6 offset-3">Quantity:</label>
+                                <div class="col-2 offset-1">
+                                        <img onclick="close_modal(this)" id="close"
+                                             class="dialog-modal-close-btn"
+                                             src="{% static 'images/close_icon.png' %}"
+                                             style="width:60%;">
+                                </div>
+                            </div>
+                            <input class="col-6" type="number" name="quantity" id="quantity" 
+                                   value=1 style="margin-top:2%">
+            
+                            <div class="row">
+                                <label class="col-8 offset-2" style="margin-top:5%" 
+                                       for="holder">Holder:</label>
+                                <input class="col-8 offset-2" type="text" 
+                                       name="holder" id="holder" style="margin-top:2%">
+                            </div>
+                            
+                            <div class="row">
+                                <label class="col-8 offset-2" 
+                                       style="margin-top:5%" for="package">Package</label>
+                            
+                                <select class="col-8 offset-2" id="package" 
+                                        name="package" style="margin-top:2%">
+                                    {% for package in packages %}
+                                        <option value="{{ package.id }}">{{ package }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            
+                            <button type="submit" id="submit-button" class="btn btn-outline-dark" 
+                                                style="margin: 2%;margin-top: 20px">Create</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-8 offset-2 packages_block">
+
+        <div class="row">
+            <h4 class="col-8" style="margin:2%" onclick="expose_packages_block(this)">- Packages</h4>
+            <div class="col-2">
+                <button type="button" onclick="show_add_packages_modal()" 
+                                style="margin-top: 10%" id="add_packages_button"
+                                class="btn btn-success">Add package</button>
+            </div>    
+        </div>
+
+        <div class="row" id="packages_field" style="margin:3%">
+            {% for package in packages %}
+                <div class="package_layout  col-3" onclick="show_package_modal(this)">
+                    <h4>{{ package.name }}</h4>
+                    <p id="package_id" style="display: none">{{ package.id }}</p>
+                    <p id="package_price">price: {{ package.price }}</p>
+                    <p>tickets created: {{ package.ticket_set.all.count }}</p>
+                    <p>tickets sold: {{ package.ticket_set.all|filter_sold_tickets|length }}</p>
+                </div>
+                
+                <div class="dialog" id="modal_package_{{ package.id }}" style="display: none">
+                    <div class="dialog-modal-content">
+                        <form id="event_package_form" name="event_package_form" 
+                              action="{% url 'update_package' event.id package.id %}" 
+                              method="post" enctype="multipart/form-data" style="text-align: center">
+                            {% csrf_token %}
+                            <div class="row">
+                                <div class="col-2" style="text-align: center">
+                                    <a href="{% url "delete_package" package.id %}">
+                                        <img class="dialog-modal-close-btn"
+                                             src="{% static 'images/remove.png' %}"
+                                             style="width:60%; float: none">
+                                    </a>    
+                                </div>
+                                <input class="col-8" type="text" name="name" value="{{ package.name }}"
+                                    style="">
+                                <div class="col-2" style="text-align: center">
+                                    <img onclick="close_modal(this)" id="close"
+                                         class="dialog-modal-close-btn"
+                                         src="{% static 'images/close_icon.png' %}"
+                                         style="width:60%; float: none">
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top:5%">
+                                <div class="col-4 offset-4">
+                                    <label for="package_price">Price:</label>
+                                    <input name="package_price" type="number"
+                                           value="{{ package.price }}" style="width:100%; margin-top:4%">
+                                </div>
+                            </div>
+                            <div class="col-8 offset-2" style="margin-top:5%">
+                                <label for="package_partners">Partners for package:</label>
+                                <select multiple style="width: 100%; margin-top: 5%; height: 100px" 
+                                        name="package_partners">
+                                    {% for partner in partners %}
+                                        {% if partner in package.partners.all %}
+                                            <option selected value={{ partner.id }}>{{ partner.name }}</option>
+                                        {% else %}
+                                            <option value={{ partner.id }}>{{ partner.name }}</option>
+                                        {% endif %}
+                                        
+                                    {% endfor %}    
+                                </select>
+                            </div>    
+                            <button type="submit" 
+{#                                    onclick="update_package(this)" #}
+                                    class="btn btn-outline-dark" style="margin-top:5%">Update</button>
+                        </form>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    
+        <div class="dialog" id="modal_add_packages" style="display: none">
+                    <div class="dialog-modal-content">
+                        <form style="margin: auto; text-align: center" id="add_packge_form"
+                            method="post" name="add_packge_form" action="{% url 'add_package' event.id %}">
+                            
+                            {% csrf_token %}
+                            
+                            <div class="row">
+                                <input class="col-6 offset-3" type="text" name="name" placeholder="Package name"
+                                    style="">
+                                <div class="col-2 offset-1">
+                                    <img onclick="close_modal(this)" id="close"
+                                         class="dialog-modal-close-btn"
+                                         src="{% static 'images/close_icon.png' %}"
+                                         style="width:60%">
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top:5%">
+                                <div class="col-4 offset-4">
+                                    <input name="package_price" type="number"
+                                           placeholder="Price" style="width:100%; margin-top:4%">
+                                </div>
+                            </div>
+                            <div class="col-8 offset-2" style="margin-top:5%">
+                                <label for="package_partners">Partners for package:</label>
+                                <select multiple style="width: 100%; margin-top: 5%; height: 100px" 
+                                        name="package_partners">
+                                    {% for partner in partners %}
+                                        <option value={{ partner.id }}>{{ partner.name }}</option>
+                                    {% endfor %}    
+                                </select>
+                            </div>    
+                            <button type="submit" 
+                                    class="btn btn-outline-dark" style="margin-top:5%">Add</button>
+                            
+                        </form>
+                    </div>
+    
+        </div>
+
+    </div>
+
+    
+    <div class="col-8 offset-2 facilitators_block">
+
+        <div class="row">
+            <h4 id="fac_label" class="col-8" style="margin:2%" onclick="expose_facilitators_block(this)">
+                {% if show_facilitators_block %}- Facilitators{% else %}+ Facilitators{% endif %}
+            </h4>
+            
+            <div class="col-2">
+                <button type="button" onclick="show_add_facilitator_modal()"
+                                style="margin-top: 10%" id="add_facilitator_button"
+                    class="btn btn-success {% if not show_facilitator_block %}hidden{% endif %}"
+                >Add facilitator</button>
+            </div>
+        </div>
+        <div class="row" id="facilitators_field" style="margin:3%; display: none">
+
+            {% for facilitator in facilitators %}
+                <div class="package_layout col-3">
+                    <h5>{{ facilitator.name }}</h5>
+                    {% if facilitator.image %}
+                        <img src="{{ facilitator.image.url }}">
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+
+        <div class="dialog" id="modal_add_facilitator" style="display: none">
+                    <div class="dialog-modal-content">
+                        <form style="margin: auto; text-align: center" id="add_facilitator_form"
+                              enctype="multipart/form-data"
+                              method="post" name="add_facilitator_form"
+                              action="{% url 'add_facilitator' event.id %}">
+
+                            {% csrf_token %}
+
+                            <div class="row">
+                                <input class="col-6 offset-3" type="text" name="name" placeholder="Facilitator name"
+                                    style="" required>
+                                <div class="col-2 offset-1">
+                                    <img onclick="close_modal(this)" id="close"
+                                         class="dialog-modal-close-btn"
+                                         src="{% static 'images/close_icon.png' %}"
+                                         style="width:60%">
+                                </div>
+                            </div>
+                            <div class="row" style="margin-top:5%">
+                                <div class="col-8 offset-2">
+                                    <label for="image">Logo:</label>
+                                    <input name="image" type="file"
+                                           style="width:100%; margin-top:4%">
+                                </div>
+                            </div>
+
+                            <div class="row" style="margin-top:5%">
+                                <div class="col-8 offset-2">
+                                    <input name="image" type="text"
+                                           placeholder="URL"
+                                           style="width:100%; margin-top:4%">
+                                </div>
+                            </div>
+
+                            <div class="row" style="margin-top:5%">
+                                <div class="col-8 offset-2">
+                                    <input name="username" type="text"
+                                           autocomplete="username"
+                                           placeholder="User name"
+                                           required
+                                           style="width:100%; margin-top:4%">
+                                </div>
+                            </div>
+
+                            <div class="row" style="margin-top:5%">
+                                <div class="col-8 offset-2">
+                                    <input name="user_pass" type="password" autocomplete="new-password"
+                                           placeholder="user password"
+                                           required
+                                           style="width:100%; margin-top:4%">
+                                </div>
+                            </div>
+
+                            <input name="is_facilitator" type="checkbox" checked hidden>
+
+                            <button type="submit"
+                                    class="btn btn-outline-dark" style="margin-top:5%">Add</button>
+
+                        </form>
+                    </div>
+
+        </div>
+
+    </div>
+    
+    <div class="col-8 offset-2 partners_block">
+        <h4 style="margin:2%" onclick="expose_partners_block(this)">+ Partners</h4>
+        <div class="row" id="partners_field" style="margin:3%; display: none">
+            {% for partner in partners %}
+                <div class="package_layout col-3">
+                    <h5>{{ partner.name }}</h5>
+                    {% if partner.image %}
+                        <img src="{{ partner.image.url }}">
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <div id="myModal" class="modal">
+        <span class="close">&times;</span>
+        <img class="modal-content" id="img01" alt="img01">
+        <div id="caption"></div>
+    </div>
+    
+    <script type="text/javascript">
+        
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                find_and_close_open_modal()
+            }
+        });
+        
+        document.addEventListener('DOMContentLoaded', function(){
+            let label = document.querySelector("#fac_label")
+            if (String(label.innerHTML).includes("-")) {
+                expose_facilitators_block(label)
+                scrollToAnchor(label)
+            }
+        });
+        
+        function scrollToAnchor(e) {
+            if (e) {
+              e.scrollIntoView({ behavior: 'smooth' });
+            }
+          }
+        
+        function find_and_close_open_modal() {
+            let close_buttons = document.querySelectorAll(".dialog-modal-close-btn")
+            close_buttons.forEach(modal => {
+                if (modal.style.display != 'none') {
+                    close_modal(modal)
+                }
+            })
+        }
+        
+        function expose_tickets_block(label) {
+            let packages_block = document.querySelector("#tickets_field")
+            if (packages_block.style.display !== "none") {
+                label.innerHTML = "+ Tickets"
+                packages_block.style.display = "none"
+            } else {
+                label.innerHTML = "- Tickets"
+                packages_block.style.display = "flex"
+            }
+        }
+        
+        function expose_packages_block(label) {
+            let packages_block = document.querySelector("#packages_field")
+            let add_button = document.querySelector("#add_packages_button")
+            if (packages_block.style.display !== "none") {
+                label.innerHTML = "+ Packages"
+                packages_block.style.display = "none"
+                add_button.style.display = "none"
+            } else {
+                label.innerHTML = "- Packages"
+                packages_block.style.display = "flex"
+                add_button.style.display = "flex"
+            }
+        }
+        
+        function expose_facilitators_block(label) {
+            let packages_block = document.querySelector("#facilitators_field")
+            let add_button = document.querySelector("#add_facilitator_button")
+            if (packages_block.style.display !== "none") {
+                label.innerHTML = "+ Facilitators"
+                packages_block.style.display = "none"
+                add_button.style.display = "none"
+
+            } else {
+                label.innerHTML = "- Facilitators"
+                packages_block.style.display = "flex"
+                add_button.style.display = "block"
+            }
+        }
+        
+        function expose_partners_block(label) {
+            let packages_block = document.querySelector("#partners_field")
+            if (packages_block.style.display !== "none") {
+                label.innerHTML = "+ Partners"
+                packages_block.style.display = "none"
+            } else {
+                label.innerHTML = "- Partners"
+                packages_block.style.display = "flex"
+            }
+        }
+        
+        function update_package(){
+            let package_form = document.getElementById("event_package_form")
+
+            package_form.submit()
+        }
+        
+        function show_package_modal(e) {
+            let package_id = e.querySelector("#package_id").innerHTML
+            let modal_package = document.querySelector("#modal_package_" + package_id)
+            let modal_content = modal_package.querySelector(".dialog-modal-content")
+            
+            modal_package.style.display = "block"
+            modal_content.style.display = "block"
+        }
+
+        function close_modal(e) {
+            let package_block = e.parentNode.parentNode.parentNode.parentNode.parentNode
+            package_block.style.display = "none"
+        }
+        
+
+
+        function show_add_tickets_modal(e) {
+            let modal_add_tickets = document.querySelector("#modal_add_tickets")
+            
+            modal_add_tickets.style.display = "block"
+        }
+        
+        function show_add_packages_modal(e) {
+            let modal_add_packages = document.querySelector("#modal_add_packages")
+            
+            modal_add_packages.style.display = "block"
+        }
+        
+        function show_add_facilitator_modal(e) {
+            let modal_add_facilitator = document.querySelector("#modal_add_facilitator")
+
+            modal_add_facilitator.style.display = "block"
+        }
+
+        function update_tickets_template(e) {
+            let update_tickets_template_form = e.parentNode
+            update_tickets_template_form.submit()
+        }
+    </script>
+
+{% endblock %}

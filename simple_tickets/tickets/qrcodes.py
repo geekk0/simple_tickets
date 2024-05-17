@@ -27,7 +27,6 @@ def paste_qr_code(background_image_path, qr_data, output_image_path, qr_position
 
         qr_hor = qr_position[0]
         qr_ver = qr_position[1]
-        print(qr_hor, qr_ver)
 
         # Create QR code instance
         qr = qrcode.QRCode(
